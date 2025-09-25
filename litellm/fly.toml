@@ -1,0 +1,19 @@
+cmd = [
+  "--config",
+  "/app/deploy/fly/proxy_config.yaml",
+  "--port",
+  "4000",
+  "--use_prisma_db_push"
+]
+
+[env]
+  PORT = "4000"
+  HOST = "0.0.0.0"
+  LITELLM_MODE = "PRODUCTION"
+  PYTHONUNBUFFERED = "1"
+  OR_SITE_URL = "https://pocketlitellm.fly.dev"
+  OR_APP_NAME = "PocketData LiteLLM"
+  CONFIG_FILE_PATH = "/app/deploy/fly/proxy_config.yaml"
+
+[[services]]
+  protocol = 'tcp'
