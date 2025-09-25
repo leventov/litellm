@@ -170,21 +170,13 @@ class LiteLLMAiohttpTransport(AiohttpTransport):
                 or session_loop.is_closed()
             ):
                 # Clean up the old session
-                if (
-                    session_loop is not None
-                    and not session_loop.is_closed()
-                    and isinstance(self.client, ClientSession)
-                    and not self.client.closed
-                ):
-                    try:
-                        # Schedule closing the old session in its own loop
-                        session_loop.call_soon_threadsafe(
-                            lambda: asyncio.ensure_future(self.client.close())
-                        )
-                    except Exception as e:
-                        verbose_logger.debug(
-                            f"Error scheduling old session closure: {e}"
-                        )
+                try:
+                    # Note: not awaiting close() here as it might be from a different loop
+                    # The session will be garbage collected
+                    pass
+                except Exception as e:
+                    verbose_logger.debug(f"Error closing old session: {e}")
+                    pass
 
                 # Create a new session in the current event loop
                 if hasattr(self, "_client_factory") and callable(self._client_factory):
