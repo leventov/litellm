@@ -1,0 +1,39 @@
+# PocketData LiteLLM proxy configuration for Fly Machines
+# This minimal config bootstraps a single OpenAI model, enables DB-backed state,
+# and wires up the MCP gateway to the forthcoming personal search service.
+model_list:
+  - model_name: grok-4-fast
+    litellm_params:
+      model: openrouter/x-ai/grok-4-fast:free
+      api_key: os.environ/OPENROUTER_API_KEY
+      timeout: 90
+      metadata:
+        site_url: os.environ/OR_SITE_URL
+        app_name: os.environ/OR_APP_NAME
+    model_info:
+      mode: chat
+
+litellm_settings:
+  telemetry: false
+  drop_params: true
+  json_logs: true
+  mcp_aliases:
+    search: personal_search
+
+mcp_servers:
+  personal_search:
+    # Replace this URL once the search MCP service is deployed.
+    url: http://pocketsearch.internal/mcp
+    transport: http
+    auth_type: authorization
+    auth_value: os.environ/PERSONAL_SEARCH_MCP_AUTH
+    mcp_info:
+      description: Personal browsing search MCP service reachable on Fly's private network.
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY
+  database_url: os.environ/DATABASE_URL
+  store_model_in_db: true
+  allow_requests_on_db_unavailable: true
+  completion_model: gpt-4o-mini
+  ui_access_mode: authenticated

@@ -1,0 +1,52 @@
+app = 'pocketlitellm'
+primary_region = 'sin'
+
+[build]
+
+cmd = [
+  "--config",
+  "/app/deploy/fly/proxy_config.yaml",
+  "--port",
+  "4000"
+]
+
+[env]
+  PORT = "4000"
+  HOST = "0.0.0.0"
+  LITELLM_MODE = "PRODUCTION"
+  PYTHONUNBUFFERED = "1"
+  OR_SITE_URL = "https://pocketlitellm.fly.dev"
+  OR_APP_NAME = "PocketData LiteLLM"
+
+[[services]]
+  protocol = 'tcp'
+  internal_port = 4000
+  auto_start_machines = true
+  auto_stop_machines = true
+  min_machines_running = 0
+
+  [[services.ports]]
+    port = 80
+    handlers = ['http']
+
+  [[services.ports]]
+    port = 443
+    handlers = ['tls', 'http']
+
+  [services.concurrency]
+    type = 'requests'
+    hard_limit = 20
+    soft_limit = 16
+
+  [[services.http_checks]]
+    interval = '15s'
+    grace_period = '30s'
+    method = 'get'
+    path = '/health/readiness'
+    protocol = 'http'
+    timeout = '5s'
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 2
