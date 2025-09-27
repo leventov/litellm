@@ -1,13 +1,11 @@
 app = 'pocketlitellm'
 primary_region = 'sin'
 
-[build]
-
 cmd = [
-  "--config",
-  "/app/deploy/fly/proxy_config.yaml",
-  "--port",
-  "4000"
+  "--host", "0.0.0.0",
+  "--config", "/app/deploy/fly/proxy_config.yaml",
+  "--port", "4000",
+  "--use_prisma_db_push"
 ]
 
 [env]
@@ -18,33 +16,23 @@ cmd = [
   OR_SITE_URL = "https://pocketlitellm.fly.dev"
   OR_APP_NAME = "PocketData LiteLLM"
 
-[[services]]
-  protocol = 'tcp'
+[http_service]
   internal_port = 4000
+  force_https = false
+  auto_stop_machines = "suspend"
   auto_start_machines = true
-  auto_stop_machines = true
   min_machines_running = 0
+  [http_service.concurrency]
+    type = "requests"
+    soft_limit = 250
 
-  [[services.ports]]
-    port = 80
-    handlers = ['http']
-
-  [[services.ports]]
-    port = 443
-    handlers = ['tls', 'http']
-
-  [services.concurrency]
-    type = 'requests'
-    hard_limit = 20
-    soft_limit = 16
-
-  [[services.http_checks]]
-    interval = '15s'
-    grace_period = '30s'
-    method = 'get'
-    path = '/health/readiness'
-    protocol = 'http'
-    timeout = '5s'
+  [[http_service.checks]]
+    interval = "15s"
+    grace_period = "30s"
+    method = "GET"
+    path = "/health/readiness"
+    protocol = "http"
+    timeout = "5s"
 
 [[vm]]
   memory = '1gb'
